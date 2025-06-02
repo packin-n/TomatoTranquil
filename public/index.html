@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Break Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Add Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Mindful Break Generator</h1>
+        
+        <div class="break-duration">
+            <h2>Break Duration:</h2>
+            <div class="duration-options">
+                <label>
+                    <input type="radio" name="breakDuration" value="30" />
+                    30 seconds
+                </label>
+                <label>
+                    <input type="radio" name="breakDuration" value="60" checked />
+                    1 minute
+                </label>
+                <label>
+                    <input type="radio" name="breakDuration" value="120" />
+                    2 minutes
+                </label>
+            </div>
+        </div>
+
+        <div class="break-content">
+            <p id="breakIdea" class="break-idea">Click the button to get a break suggestion...</p>
+            <div class="timer">Time remaining: <span id="countdown">--</span></div>
+            <button id="getBreakBtn" class="primary-button">Get New Break Idea</button>
+        </div>
+
+        <footer>
+            <p>Take regular breaks to stay productive! 🌟</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
