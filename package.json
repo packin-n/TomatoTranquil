@@ -1,0 +1,13 @@
+{
+  "name": "mindful-break-hack",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "dependencies": {
+    "@vercel/node": "^3.0.0"
+  }
+} 

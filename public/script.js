@@ -91,8 +91,8 @@ async function getBreakIdea() {
     breakIdeaParagraph.textContent = "Thinking of a break idea...";
 
     try {
-        // Call our backend API
-        const response = await fetch('/api/gemini');
+        // Call our backend API with the correct path
+        const response = await fetch('/api/gemini/route');
         
         if (!response.ok) {
             const errorData = await response.json();
