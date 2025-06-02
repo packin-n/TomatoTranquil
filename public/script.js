@@ -1,6 +1,5 @@
 let countdownIntervalId = null;
 let totalDuration = 0;
-let isStudySession = false;
 
 // DOM Elements
 const studyCountdownElement = document.getElementById('studyCountdown');
@@ -12,12 +11,11 @@ const timerEndSound = document.getElementById('timerEndSound');
 const breakCountElement = document.getElementById('breakCount');
 const startStudyBtn = document.getElementById('startStudyBtn');
 const studyMinutesInput = document.getElementById('studyMinutes');
-const breakSection = document.querySelector('.break-section');
 const timeAdjustBtns = document.querySelectorAll('.time-adjust-btn');
 
-// Initialize break count from localStorage
-let breakCount = parseInt(localStorage.getItem('breakCount') || '0');
-updateBreakCount();
+// Initialize session count from localStorage
+let sessionCount = parseInt(localStorage.getItem('sessionCount') || '0');
+updateSessionCount();
 
 // Add event listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (startStudyBtn) {
-        startStudyBtn.addEventListener('click', toggleStudyTimer);
+        startStudyBtn.addEventListener('click', toggleWorkTimer);
     }
 
     // Time adjustment buttons
@@ -35,11 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const adjustment = parseInt(btn.dataset.adjust);
             let currentValue = parseInt(studyMinutesInput.value);
             currentValue += adjustment;
-            
-            // Ensure value stays within bounds
             currentValue = Math.min(Math.max(currentValue, 1), 60);
             studyMinutesInput.value = currentValue;
-            updateStudyTimerDisplay(currentValue * 60);
+            updateTimerDisplay(currentValue * 60);
         });
     });
 
@@ -48,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let value = parseInt(studyMinutesInput.value);
         value = Math.min(Math.max(value, 1), 60);
         studyMinutesInput.value = value;
-        updateStudyTimerDisplay(value * 60);
+        updateTimerDisplay(value * 60);
     });
 
     // Check for notification permission
@@ -59,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Function to update break count
-function updateBreakCount() {
+// Function to update session count
+function updateSessionCount() {
     if (breakCountElement) {
-        breakCountElement.textContent = breakCount;
-        localStorage.setItem('breakCount', breakCount.toString());
+        breakCountElement.textContent = sessionCount;
+        localStorage.setItem('sessionCount', sessionCount.toString());
     }
 }
 
@@ -88,24 +84,23 @@ function formatTime(seconds) {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-// Function to update study timer display
-function updateStudyTimerDisplay(seconds) {
+// Function to update timer display
+function updateTimerDisplay(seconds) {
     if (studyCountdownElement) {
         studyCountdownElement.textContent = formatTime(seconds);
     }
 }
 
-// Function to toggle study timer
-function toggleStudyTimer() {
+// Function to toggle work timer
+function toggleWorkTimer() {
     if (countdownIntervalId) {
         // Stop timer
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
-        startStudyBtn.textContent = 'Start Study Session';
+        startStudyBtn.textContent = 'Start Work Session';
         studyMinutesInput.disabled = false;
         timeAdjustBtns.forEach(btn => btn.disabled = false);
         progressBarFill.style.width = '0%';
-        isStudySession = false;
     } else {
         // Start timer
         const minutes = parseInt(studyMinutesInput.value);
@@ -113,18 +108,17 @@ function toggleStudyTimer() {
         startStudyBtn.textContent = 'Stop Timer';
         studyMinutesInput.disabled = true;
         timeAdjustBtns.forEach(btn => btn.disabled = true);
-        isStudySession = true;
     }
 }
 
 // Function to Start Countdown
-function startCountdown(durationInSeconds, isStudy = false) {
+function startCountdown(durationInSeconds, isWorkTimer = false) {
     if (typeof durationInSeconds !== 'number' || durationInSeconds <= 0) {
         console.error("Invalid duration passed to startCountdown:", durationInSeconds);
         return;
     }
 
-    // Clear any existing interval first
+    // Clear any existing interval
     if (countdownIntervalId) {
         clearInterval(countdownIntervalId);
     }
@@ -133,7 +127,7 @@ function startCountdown(durationInSeconds, isStudy = false) {
     let timeLeft = durationInSeconds;
 
     // Update initial display
-    const displayElement = isStudy ? studyCountdownElement : countdownElement;
+    const displayElement = isWorkTimer ? studyCountdownElement : countdownElement;
     if (displayElement) {
         displayElement.textContent = formatTime(timeLeft);
     }
@@ -159,18 +153,15 @@ function startCountdown(durationInSeconds, isStudy = false) {
             clearInterval(countdownIntervalId);
             countdownIntervalId = null;
             
-            if (isStudy) {
-                // Study session completed
-                showNotification("Study session complete! Time for a mindful break.");
-                startStudyBtn.textContent = 'Start Study Session';
+            if (isWorkTimer) {
+                showNotification("Work session complete! Time for a mindful break.");
+                startStudyBtn.textContent = 'Start Work Session';
                 studyMinutesInput.disabled = false;
                 timeAdjustBtns.forEach(btn => btn.disabled = false);
-                breakSection.style.display = 'block';
-                breakCount++;
-                updateBreakCount();
+                sessionCount++;
+                updateSessionCount();
             } else {
-                // Break completed
-                showNotification("Break time is over! Ready for another study session?");
+                showNotification("Break time is over! Ready for another work session?");
                 displayElement.textContent = "Time's up!";
             }
             
@@ -183,8 +174,6 @@ function startCountdown(durationInSeconds, isStudy = false) {
 
 // Function to Fetch Break Idea
 async function getBreakIdea() {
-    console.log("Fetching break idea...");
-
     let selectedDurationSeconds = 60;
     try {
         const selectedRadio = document.querySelector('input[name="breakDuration"]:checked');
