@@ -1,4 +1,4 @@
-# <img src="public/images/favicon.jpg" alt="TomatoTranquil Icon" width="30" height="30" style="vertical-align: middle; border-radius: 20%;"> TomatoTranquil
+# <img src="public/images/favicon.jpg" alt="TomatoTranquil Icon" width="40" height="40" style="vertical-align: middle; border-radius: 20%;"> TomatoTranquil
 
 > A self-designed project for UC Berkeley Cal Hacks x MTC: Hack for Good Night, developed with assistance from Claude-3.5-Sonnet AI and Gemini 2.5 Pro to promote mindful productivity and well-being.
 
