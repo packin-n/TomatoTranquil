@@ -1,13 +1,15 @@
 {
   "name": "mindful-break-hack",
   "version": "1.0.0",
-  "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
   "scripts": {
-    "dev": "vercel dev",
-    "deploy": "vercel deploy --prod"
+    "start": "node api/gemini.js"
   },
   "dependencies": {
-    "@vercel/node": "^3.0.0"
+    "@vercel/node": "^3.0.0",
+    "node-fetch": "^2.6.1"
   }
 } 
