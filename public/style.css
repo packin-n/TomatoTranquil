@@ -1,10 +1,11 @@
 :root {
-    --primary-color: #4a90e2;
-    --secondary-color: #2c3e50;
-    --background-color: #f5f6fa;
-    --text-color: #2c3e50;
-    --border-radius: 8px;
-    --spacing: 20px;
+    --primary-color: #ff6b6b;
+    --secondary-color: #4f46e5;
+    --background-color: #fff5f5;
+    --text-color: #1f2937;
+    --border-radius: 12px;
+    --spacing: 24px;
+    --transition: all 0.3s ease;
 }
 
 * {
@@ -17,36 +18,106 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background-color: var(--background-color);
+    background: linear-gradient(135deg, var(--background-color), #fff);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
 }
 
 .container {
     max-width: 800px;
+    width: 100%;
     margin: 0 auto;
     padding: var(--spacing);
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+header {
+    text-align: center;
+    margin-bottom: var(--spacing);
 }
 
 h1 {
-    text-align: center;
     color: var(--primary-color);
-    margin-bottom: var(--spacing);
+    font-size: 2.5em;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.tagline {
+    color: var(--text-color);
+    font-size: 1.2em;
+    opacity: 0.8;
 }
 
 h2 {
     color: var(--secondary-color);
     margin-bottom: calc(var(--spacing) / 2);
-    font-size: 1.2em;
+    font-size: 1.4em;
+    font-weight: 600;
+    text-align: center;
 }
 
-.break-duration {
+.timer-section {
     margin-bottom: var(--spacing);
+    padding: var(--spacing);
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: var(--spacing);
+}
+
+.time-adjust-btn {
+    background: white;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-size: 1.2em;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.time-adjust-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+#studyMinutes {
+    width: 80px;
+    padding: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+}
+
+.main-timer {
+    font-size: 3em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: var(--spacing) 0;
+}
+
+.break-section {
+    margin-top: var(--spacing);
+    padding-top: var(--spacing);
+    border-top: 2px solid var(--background-color);
 }
 
 .duration-options {
@@ -54,71 +125,135 @@ h2 {
     gap: var(--spacing);
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: var(--spacing);
+}
+
+.duration-options input[type="radio"] {
+    display: none;
 }
 
 .duration-options label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 8px 16px;
+    background: white;
+    border-radius: 20px;
     cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.duration-options label:hover {
+    border-color: var(--primary-color);
+}
+
+.duration-options input[type="radio"]:checked + label {
+    background: var(--primary-color);
+    color: white;
 }
 
 .break-content {
     text-align: center;
-    margin-bottom: var(--spacing);
 }
 
 .break-idea {
-    background: var(--background-color);
+    background: white;
     padding: var(--spacing);
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing);
-    min-height: 80px;
+    min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.2em;
+    line-height: 1.6;
+    border: 2px solid var(--background-color);
 }
 
-.timer {
-    font-size: 1.2em;
+.break-timer {
+    font-size: 2em;
     margin-bottom: var(--spacing);
-    color: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: white;
+    border-radius: 4px;
+    margin-bottom: var(--spacing);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: width 1s linear;
 }
 
 .primary-button {
-    background-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: var(--border-radius);
+    padding: 16px 32px;
+    border-radius: 25px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
 }
 
 .primary-button:hover {
-    background-color: #357abd;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
 }
 
 .primary-button:active {
-    transform: scale(0.98);
+    transform: translateY(0);
 }
 
 footer {
     text-align: center;
     margin-top: var(--spacing);
-    color: var(--secondary-color);
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.break-count {
+    margin-top: 8px;
     font-size: 0.9em;
 }
 
 @media (max-width: 600px) {
+    :root {
+        --spacing: 16px;
+    }
+
     .container {
-        margin: var(--spacing);
+        margin: 10px;
+        padding: var(--spacing);
     }
     
+    h1 {
+        font-size: 2em;
+    }
+
+    .main-timer {
+        font-size: 2.5em;
+    }
+
+    .break-timer {
+        font-size: 1.5em;
+    }
+
     .duration-options {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         gap: calc(var(--spacing) / 2);
+    }
+
+    .break-idea {
+        font-size: 1.1em;
+        padding: calc(var(--spacing) / 1.5);
     }
 } 

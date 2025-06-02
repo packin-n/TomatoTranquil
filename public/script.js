@@ -1,26 +1,126 @@
-let countdownIntervalId = null; // Variable to store the timer interval ID
+let countdownIntervalId = null;
+let totalDuration = 0;
+let isStudySession = false;
 
+// DOM Elements
+const studyCountdownElement = document.getElementById('studyCountdown');
 const countdownElement = document.getElementById('countdown');
 const breakButton = document.getElementById('getBreakBtn');
 const breakIdeaParagraph = document.getElementById('breakIdea');
+const progressBarFill = document.querySelector('.progress-bar-fill');
+const timerEndSound = document.getElementById('timerEndSound');
+const breakCountElement = document.getElementById('breakCount');
+const startStudyBtn = document.getElementById('startStudyBtn');
+const studyMinutesInput = document.getElementById('studyMinutes');
+const breakSection = document.querySelector('.break-section');
+const timeAdjustBtns = document.querySelectorAll('.time-adjust-btn');
 
-// Add event listeners once DOM is loaded
+// Initialize break count from localStorage
+let breakCount = parseInt(localStorage.getItem('breakCount') || '0');
+updateBreakCount();
+
+// Add event listeners
 document.addEventListener('DOMContentLoaded', () => {
     if (breakButton) {
         breakButton.addEventListener('click', getBreakIdea);
-    } else {
-        console.error("Error: Could not find button with ID 'getBreakBtn'");
+    }
+    
+    if (startStudyBtn) {
+        startStudyBtn.addEventListener('click', toggleStudyTimer);
     }
 
-    // Automatically fetch a break idea when page loads
-    getBreakIdea();
+    // Time adjustment buttons
+    timeAdjustBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const adjustment = parseInt(btn.dataset.adjust);
+            let currentValue = parseInt(studyMinutesInput.value);
+            currentValue += adjustment;
+            
+            // Ensure value stays within bounds
+            currentValue = Math.min(Math.max(currentValue, 1), 60);
+            studyMinutesInput.value = currentValue;
+            updateStudyTimerDisplay(currentValue * 60);
+        });
+    });
+
+    // Manual input handling
+    studyMinutesInput.addEventListener('change', () => {
+        let value = parseInt(studyMinutesInput.value);
+        value = Math.min(Math.max(value, 1), 60);
+        studyMinutesInput.value = value;
+        updateStudyTimerDisplay(value * 60);
+    });
+
+    // Check for notification permission
+    if ("Notification" in window && Notification.permission === "default") {
+        setTimeout(() => {
+            Notification.requestPermission();
+        }, 3000);
+    }
 });
 
+// Function to update break count
+function updateBreakCount() {
+    if (breakCountElement) {
+        breakCountElement.textContent = breakCount;
+        localStorage.setItem('breakCount', breakCount.toString());
+    }
+}
+
+// Function to show notification
+function showNotification(message) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("TomatoTranquil", {
+            body: message,
+            icon: "/favicon.ico"
+        });
+    }
+
+    if (timerEndSound) {
+        timerEndSound.play().catch(e => console.log('Audio play failed:', e));
+    }
+}
+
+// Function to format time
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+// Function to update study timer display
+function updateStudyTimerDisplay(seconds) {
+    if (studyCountdownElement) {
+        studyCountdownElement.textContent = formatTime(seconds);
+    }
+}
+
+// Function to toggle study timer
+function toggleStudyTimer() {
+    if (countdownIntervalId) {
+        // Stop timer
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+        startStudyBtn.textContent = 'Start Study Session';
+        studyMinutesInput.disabled = false;
+        timeAdjustBtns.forEach(btn => btn.disabled = false);
+        progressBarFill.style.width = '0%';
+        isStudySession = false;
+    } else {
+        // Start timer
+        const minutes = parseInt(studyMinutesInput.value);
+        startCountdown(minutes * 60, true);
+        startStudyBtn.textContent = 'Stop Timer';
+        studyMinutesInput.disabled = true;
+        timeAdjustBtns.forEach(btn => btn.disabled = true);
+        isStudySession = true;
+    }
+}
+
 // Function to Start Countdown
-function startCountdown(durationInSeconds) {
+function startCountdown(durationInSeconds, isStudy = false) {
     if (typeof durationInSeconds !== 'number' || durationInSeconds <= 0) {
         console.error("Invalid duration passed to startCountdown:", durationInSeconds);
-        if (countdownElement) countdownElement.textContent = "Error";
         return;
     }
 
@@ -29,69 +129,87 @@ function startCountdown(durationInSeconds) {
         clearInterval(countdownIntervalId);
     }
 
+    totalDuration = durationInSeconds;
     let timeLeft = durationInSeconds;
-    if (countdownElement) {
-        countdownElement.textContent = timeLeft; // Show initial time
-    } else {
-        console.error("Countdown element not found");
-        return;
+
+    // Update initial display
+    const displayElement = isStudy ? studyCountdownElement : countdownElement;
+    if (displayElement) {
+        displayElement.textContent = formatTime(timeLeft);
+    }
+    if (progressBarFill) {
+        progressBarFill.style.width = '100%';
     }
 
     countdownIntervalId = setInterval(() => {
         timeLeft--;
-        if (countdownElement) {
-            countdownElement.textContent = timeLeft;
+        
+        // Update timer display
+        if (displayElement) {
+            displayElement.textContent = formatTime(timeLeft);
+        }
+
+        // Update progress bar
+        if (progressBarFill) {
+            const percentage = (timeLeft / totalDuration) * 100;
+            progressBarFill.style.width = `${percentage}%`;
         }
 
         if (timeLeft <= 0) {
             clearInterval(countdownIntervalId);
             countdownIntervalId = null;
-            if (countdownElement) {
-                countdownElement.textContent = "Up!"; // Indicate time's up
+            
+            if (isStudy) {
+                // Study session completed
+                showNotification("Study session complete! Time for a mindful break.");
+                startStudyBtn.textContent = 'Start Study Session';
+                studyMinutesInput.disabled = false;
+                timeAdjustBtns.forEach(btn => btn.disabled = false);
+                breakSection.style.display = 'block';
+                breakCount++;
+                updateBreakCount();
+            } else {
+                // Break completed
+                showNotification("Break time is over! Ready for another study session?");
+                displayElement.textContent = "Time's up!";
+            }
+            
+            if (progressBarFill) {
+                progressBarFill.style.width = '0%';
             }
         }
-    }, 1000); // Run every 1000ms (1 second)
+    }, 1000);
 }
 
-// Function to Fetch Break Idea from our API
+// Function to Fetch Break Idea
 async function getBreakIdea() {
     console.log("Fetching break idea...");
 
-    // Get selected break duration
-    let selectedDurationSeconds = 60; // Default
+    let selectedDurationSeconds = 60;
     try {
         const selectedRadio = document.querySelector('input[name="breakDuration"]:checked');
         if (selectedRadio) {
             selectedDurationSeconds = parseInt(selectedRadio.value, 10);
-        } else {
-            console.warn("No break duration selected, defaulting to 60 seconds.");
         }
     } catch (e) {
         console.error("Error reading break duration", e);
     }
 
-    // Reset UI elements
     if (countdownIntervalId) {
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
     }
-    if (countdownElement) {
-        countdownElement.textContent = "--";
-    }
     
-    // Check if essential elements exist
-    if (!breakIdeaParagraph || !countdownElement) {
-        console.error("Error: Could not find required UI elements.");
-        if (breakIdeaParagraph) {
-            breakIdeaParagraph.textContent = "Error: UI elements missing.";
-        }
-        return;
+    if (countdownElement) {
+        countdownElement.textContent = "--:--";
+    }
+    if (progressBarFill) {
+        progressBarFill.style.width = '0%';
     }
 
-    breakIdeaParagraph.textContent = "Thinking of a break idea...";
+    breakIdeaParagraph.textContent = "Thinking of a mindful break idea...";
 
     try {
-        // Call our backend API
         const response = await fetch('/api/gemini');
         
         if (!response.ok) {
@@ -102,14 +220,11 @@ async function getBreakIdea() {
         const data = await response.json();
         
         if (data.text) {
-            // Parse Markdown if the library is available
             if (typeof marked !== 'undefined') {
                 breakIdeaParagraph.innerHTML = marked.parse(data.text);
             } else {
                 breakIdeaParagraph.textContent = data.text;
             }
-
-            // Start the countdown timer
             startCountdown(selectedDurationSeconds);
         } else {
             throw new Error('No break idea received from server');

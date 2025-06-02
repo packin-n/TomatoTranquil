@@ -3,41 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mindful Break Generator</title>
+    <title>TomatoTranquil - Mindful Pomodoro Breaks</title>
     <link rel="stylesheet" href="style.css">
     <!-- Add Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Add notification sound -->
+    <audio id="timerEndSound" preload="auto">
+        <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+    </audio>
 </head>
 <body>
     <div class="container">
-        <h1>Mindful Break Generator</h1>
-        
-        <div class="break-duration">
-            <h2>Break Duration:</h2>
+        <header>
+            <h1>🍅 TomatoTranquil</h1>
+            <p class="tagline">Mindful breaks after focused work</p>
+        </header>
+
+        <div class="timer-section">
+            <h2>Study Timer</h2>
+            <div class="timer-controls">
+                <button class="time-adjust-btn" data-adjust="-5">-5</button>
+                <input type="number" id="studyMinutes" value="25" min="1" max="60">
+                <button class="time-adjust-btn" data-adjust="+5">+5</button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+            <div class="timer main-timer">
+                <span id="studyCountdown">25:00</span>
+            </div>
+            <button id="startStudyBtn" class="primary-button">Start Study Session</button>
+        </div>
+
+        <div class="break-section" style="display: none;">
+            <h2>Break Duration</h2>
             <div class="duration-options">
-                <label>
-                    <input type="radio" name="breakDuration" value="30" />
-                    30 seconds
-                </label>
-                <label>
-                    <input type="radio" name="breakDuration" value="60" checked />
-                    1 minute
-                </label>
-                <label>
-                    <input type="radio" name="breakDuration" value="120" />
-                    2 minutes
-                </label>
+                <input type="radio" name="breakDuration" id="duration60" value="60" checked>
+                <label for="duration60">1 minute</label>
+                
+                <input type="radio" name="breakDuration" id="duration120" value="120">
+                <label for="duration120">2 minutes</label>
+                
+                <input type="radio" name="breakDuration" id="duration300" value="300">
+                <label for="duration300">5 minutes</label>
+            </div>
+
+            <div class="break-content">
+                <p id="breakIdea" class="break-idea">Complete your study session to get a mindful break suggestion...</p>
+                
+                <div class="break-timer-section">
+                    <div class="timer break-timer">Time: <span id="countdown">--:--</span></div>
+                </div>
+
+                <button id="getBreakBtn" class="primary-button">Get Break Idea</button>
             </div>
         </div>
 
-        <div class="break-content">
-            <p id="breakIdea" class="break-idea">Click the button to get a break suggestion...</p>
-            <div class="timer">Time remaining: <span id="countdown">--</span></div>
-            <button id="getBreakBtn" class="primary-button">Get New Break Idea</button>
-        </div>
-
         <footer>
-            <p>Take regular breaks to stay productive! 🌟</p>
+            <p>Take mindful breaks to enhance your study sessions! 🌟</p>
+            <p class="break-count">Study sessions completed: <span id="breakCount">0</span></p>
         </footer>
     </div>
 
