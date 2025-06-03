@@ -38,31 +38,6 @@ Unlike traditional Pomodoro timers that only track time, TomatoTranquil integrat
 - AI: Google Gemini API
 - Deployment: Vercel
 
-## 📦 Installation
-
-1. Clone the repository:
-```bash
-git clone [your-repo-url]
-cd mindful-break-hack
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up your environment variables:
-- Create a `.env` file in the root directory
-- Add your Google Gemini API key:
-```
-GEMINI_API_KEY=your_api_key_here
-```
-
-4. Run the development server:
-```bash
-npm start
-```
-
 ## 🌟 Usage
 
 1. Set your desired work duration (1-60 minutes)
