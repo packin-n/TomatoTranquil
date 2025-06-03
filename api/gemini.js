@@ -3,8 +3,43 @@ const fetch = require('node-fetch');
 // Vercel Serverless Function for Gemini API
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
-// The prompt is fixed as per requirements
-const FIXED_PROMPT = "Generate a very short (1-2 sentence) description of a simple mindfulness activity or physical stretch suitable for a student taking a quick study break at their desk. Make it actionable and under 1 minute.";
+// Define break categories
+const BREAK_CATEGORIES = [
+    'mindful breathing exercise',
+    'gentle desk stretches',
+    'mindful observation practice',
+    'quick body scan meditation',
+    'hand and finger exercises',
+    'neck and shoulder release',
+    'mindful posture adjustment',
+    'eye relaxation technique'
+];
+
+// The base prompt template
+const PROMPT_TEMPLATE = "Generate a unique and specific (1-2 sentences) %CATEGORY% that: 1) is easy to do at a desk, 2) takes 30-60 seconds, 3) helps reduce stress or physical tension, and 4) requires no special equipment. Make it different from common suggestions and immediately actionable. Focus on being specific and novel.";
+
+// Track last used categories
+let lastUsedCategories = [];
+
+function getNextCategory() {
+    // If all categories have been used, reset the tracking
+    if (lastUsedCategories.length >= BREAK_CATEGORIES.length) {
+        lastUsedCategories = [];
+    }
+    
+    // Filter out recently used categories
+    const availableCategories = BREAK_CATEGORIES.filter(
+        category => !lastUsedCategories.includes(category)
+    );
+    
+    // Select a random category from available ones
+    const selectedCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)];
+    
+    // Add to tracking
+    lastUsedCategories.push(selectedCategory);
+    
+    return selectedCategory;
+}
 
 module.exports = async function handler(req, res) {
     // Enable CORS
@@ -23,6 +58,10 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: 'GEMINI_API_KEY environment variable is not set' });
         }
 
+        // Generate current prompt with a specific category
+        const currentCategory = getNextCategory();
+        const CURRENT_PROMPT = PROMPT_TEMPLATE.replace('%CATEGORY%', currentCategory);
+
         // Prepare request to Gemini API
         const response = await fetch(`${API_URL}?key=${apiKey}`, {
             method: 'POST',
@@ -31,7 +70,7 @@ module.exports = async function handler(req, res) {
             },
             body: JSON.stringify({
                 contents: [{
-                    parts: [{ text: FIXED_PROMPT }]
+                    parts: [{ text: CURRENT_PROMPT }]
                 }]
             })
         });
@@ -51,8 +90,11 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: 'No text generated from Gemini API' });
         }
 
-        // Return success response
-        return res.status(200).json({ text: generatedText.trim() });
+        // Return success response with category info
+        return res.status(200).json({ 
+            text: generatedText.trim(),
+            category: currentCategory // Optional: include category for debugging
+        });
 
     } catch (error) {
         console.error('Error:', error);
